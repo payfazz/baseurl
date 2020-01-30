@@ -6,7 +6,7 @@ import (
 )
 
 // Get request and return base url.
-// return empty string if base url cannot be infered from request header.
+// return empty string if base url cannot be inferred from request header.
 // base url will not have trailing slash
 func Get(r *http.Request) string {
 	header := r.Header.Get("X-Base-Url")
