@@ -40,6 +40,20 @@ func Get(r *http.Request) string {
 	return ret
 }
 
+// MustGet is like Get, but instead return empty string
+// it will recreate url from request if Get return empty string
+func MustGet(r *http.Request) string {
+	if base := Get(r); base != "" {
+		return base
+	}
+
+	schema := "http"
+	if r.TLS != nil {
+		schema = "https"
+	}
+	return schema + "://" + r.Host
+}
+
 // Current return current url
 // return empty string if Get return empty string.
 func Current(r *http.Request) string {
