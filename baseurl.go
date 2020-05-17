@@ -15,33 +15,31 @@ func Get(r *http.Request) string {
 	}
 
 	// Must valid url
-	base, err := url.Parse(header)
+	url, err := url.Parse(header)
 	if err != nil {
 		return ""
 	}
 
 	// must have schema and host
-	if base.Scheme == "" || base.Host == "" {
+	if url.Scheme == "" || url.Host == "" {
 		return ""
 	}
 
 	// must not containn extra field
-	if base.Opaque != "" || base.User != nil || base.ForceQuery || base.RawQuery != "" || base.Fragment != "" {
+	if url.Opaque != "" || url.User != nil || url.ForceQuery || url.RawQuery != "" || url.Fragment != "" {
 		return ""
 	}
 
-	ret := base.String()
-
 	// remove trailing slash
-	if len := len(ret); len > 0 && ret[len-1] == '/' {
-		ret = ret[:len-1]
+	if header[len(header)-1] == '/' {
+		header = header[:len(header)-1]
 	}
 
-	return ret
+	return header
 }
 
 // MustGet is like Get, but instead return empty string
-// it will recreate url from request if Get return empty string
+// it will recreate url from r if Get return empty string
 func MustGet(r *http.Request) string {
 	if base := Get(r); base != "" {
 		return base
@@ -51,7 +49,13 @@ func MustGet(r *http.Request) string {
 	if r.TLS != nil {
 		schema = "https"
 	}
-	return schema + "://" + r.Host
+
+	host := r.Host
+	if host == "" {
+		host = "localhost"
+	}
+
+	return schema + "://" + host
 }
 
 // Current return current url
