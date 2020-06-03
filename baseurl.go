@@ -1,3 +1,4 @@
+// Package baseurl provide utility to access X-Base-Url http header.
 package baseurl
 
 import (
@@ -5,7 +6,8 @@ import (
 	"net/url"
 )
 
-// Get request and return base url.
+// Get return base url.
+//
 // return empty string if base url cannot be inferred from request header.
 // base url will not have trailing slash
 func Get(r *http.Request) string {
@@ -58,18 +60,18 @@ func MustGet(r *http.Request) string {
 	return schema + "://" + host
 }
 
-// Current return current url
-// return empty string if Get return empty string.
+// Current return current url.
 func Current(r *http.Request) string {
-	base := Get(r)
-	if base == "" {
-		return ""
-	}
+	base := MustGet(r)
 
 	current, err := url.Parse(base + r.URL.EscapedPath())
 	if err != nil {
 		return ""
 	}
+
+	current.ForceQuery = r.URL.ForceQuery
+	current.RawQuery = r.URL.RawQuery
+	current.Fragment = r.URL.Fragment
 
 	return current.String()
 }

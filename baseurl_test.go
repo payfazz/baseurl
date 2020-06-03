@@ -53,6 +53,7 @@ func TestParser3(t *testing.T) {
 		t.Fatalf("should return empty string")
 	}
 }
+
 func TestParser4(t *testing.T) {
 	r := httptest.NewRequest("GET", "/a", nil)
 	r.Header.Set("X-Base-Url", "http://a:b@c.d/e/f")
@@ -61,6 +62,7 @@ func TestParser4(t *testing.T) {
 		t.Fatalf("should return empty string")
 	}
 }
+
 func TestCurrent(t *testing.T) {
 	testData := []struct {
 		expected string
@@ -72,7 +74,10 @@ func TestCurrent(t *testing.T) {
 		{"https://example.com/a/%2fb/c/d/", "https://example.com/a/%2fb/c/", "/d/"},
 		{"https://example.com/a/%2fb/c/d/%2fe/", "https://example.com/a/%2fb/c/", "/d/%2fe/"},
 		{"https://example.com/a/b/c/d/%2fe/", "https://example.com/a/b/c/", "/d/%2fe/"},
-		{"", "h      s:", "/"},
+		{"http://internal.com/", "h      s:", "/"},
+		{"http://internal.com/a/b", "h      s:", "/a/b"},
+		{"https://example.com/a/b/c/d/%2fe/?lala=lele", "https://example.com/a/b/c/", "/d/%2fe/?lala=lele"},
+		{"http://internal.com/a/b?lala=lele", "h      s:", "/a/b?lala=lele"},
 	}
 
 	for i := 0; i < len(testData); i++ {
@@ -83,6 +88,7 @@ func TestCurrent(t *testing.T) {
 
 			r := httptest.NewRequest("GET", path, nil)
 			r.Header.Set("X-Base-Url", header)
+			r.Host = "internal.com"
 
 			found := baseurl.Current(r)
 			if found != expected {
