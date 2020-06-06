@@ -27,7 +27,7 @@ func TestParser1(t *testing.T) {
 			r := httptest.NewRequest("GET", "/a", nil)
 			r.Header.Set("X-Base-Url", header)
 
-			found := baseurl.Get(r)
+			found, _ := baseurl.Get(r)
 			if found != expected {
 				t.Fatalf(`found "%s", expected "%s"`, found, expected)
 			}
@@ -40,8 +40,8 @@ func TestParser2(t *testing.T) {
 	r := httptest.NewRequest("GET", "/a", nil)
 	r.Header.Set("X-Base-Url", "::::::::invalid value:::::::")
 
-	if baseurl.Get(r) != "" {
-		t.Fatalf("should return empty string")
+	if baseurl, ok := baseurl.Get(r); baseurl != "" || !ok {
+		t.Fatalf("should return empty string and true")
 	}
 }
 
@@ -49,8 +49,8 @@ func TestParser3(t *testing.T) {
 	r := httptest.NewRequest("GET", "/a", nil)
 	r.Header.Set("X-Base-Url", "/without/schema/and/host")
 
-	if baseurl.Get(r) != "" {
-		t.Fatalf("should return empty string")
+	if baseurl, ok := baseurl.Get(r); baseurl != "" || !ok {
+		t.Fatalf("should return empty string and true")
 	}
 }
 
@@ -58,8 +58,8 @@ func TestParser4(t *testing.T) {
 	r := httptest.NewRequest("GET", "/a", nil)
 	r.Header.Set("X-Base-Url", "http://a:b@c.d/e/f")
 
-	if baseurl.Get(r) != "" {
-		t.Fatalf("should return empty string")
+	if baseurl, ok := baseurl.Get(r); baseurl != "" || !ok {
+		t.Fatalf("should return empty string and true")
 	}
 }
 

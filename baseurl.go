@@ -10,26 +10,26 @@ import (
 //
 // return empty string if base url cannot be inferred from request header.
 // base url will not have trailing slash
-func Get(r *http.Request) string {
+func Get(r *http.Request) (string, bool) {
 	header := r.Header.Get("X-Base-Url")
 	if header == "" {
-		return ""
+		return "", false
 	}
 
 	// Must valid url
 	url, err := url.Parse(header)
 	if err != nil {
-		return ""
+		return "", true
 	}
 
 	// must have schema and host
 	if url.Scheme == "" || url.Host == "" {
-		return ""
+		return "", true
 	}
 
 	// must not containn extra field
 	if url.Opaque != "" || url.User != nil || url.ForceQuery || url.RawQuery != "" || url.Fragment != "" {
-		return ""
+		return "", true
 	}
 
 	// remove trailing slash
@@ -37,13 +37,13 @@ func Get(r *http.Request) string {
 		header = header[:len(header)-1]
 	}
 
-	return header
+	return header, true
 }
 
 // MustGet is like Get, but instead return empty string
 // it will recreate url from r if Get return empty string
 func MustGet(r *http.Request) string {
-	if base := Get(r); base != "" {
+	if base, _ := Get(r); base != "" {
 		return base
 	}
 
